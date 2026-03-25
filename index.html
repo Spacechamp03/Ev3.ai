@@ -1,180 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ev3.ai - Your own LEGO Robot</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: white;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ev3.ai AI LEGO Robot</title>
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 40px;
-      background: #020617;
-      position: sticky;
-      top: 0;
-    }
+<style>
+:root{--bg:#0b1220;--text:#e6edf3;--muted:#9fb0c3;--accent:#4fd1ff;--card:#111a2e}
+body.light{--bg:#f7fafc;--text:#0b1220;--muted:#000000;--card:#e6edf3}
+body{margin:0;font-family:system-ui;background:var(--bg);color:var(--text);overflow-x:hidden;transition:.35s}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px 32px;position:sticky;top:0;background:rgba(10,15,30,.7);backdrop-filter:blur(12px);z-index:10}
+nav a{margin:0 12px;color:var(--muted);cursor:pointer}
+nav a:hover{color:var(--accent)}
+button{background:var(--accent);border:none;border-radius:10px;padding:10px 16px;cursor:pointer}
 
-    nav a {
-      margin: 0 15px;
-      text-decoration: none;
-      color: #94a3b8;
-      transition: 0.3s;
-    }
+.page{position:absolute;inset:80px 0 0 0;opacity:0;transform:translateX(80px);transition:.5s;padding:40px}
+.page.active{opacity:1;transform:translateX(0)}
 
-    nav a:hover {
-      color: #38bdf8;
-    }
+.hero{text-align:center;padding:120px 20px 60px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.card{background:var(--card);padding:20px;border-radius:16px;transition:.3s}
+.card:hover{transform:translateY(-10px)}
 
-    .hero {
-      height: 90vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-    }
+.gallery{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:220px 220px;gap:12px}
+.tile{background:#000;border-radius:12px;overflow:hidden}
+.tile img,.tile video{width:100%;height:100%;object-fit:cover}
+.video{grid-row:1/3}
 
-    .hero h1 {
-      font-size: 3rem;
-      margin-bottom: 10px;
-    }
+.phone{width:280px;height:580px;background:#000;border-radius:40px;margin:auto;padding:12px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.screen{background:#0b1220;height:100%;border-radius:30px;padding:10px;display:flex;flex-direction:column}
+.chat{flex:1;overflow:auto}
+.bubble{padding:8px;border-radius:10px;margin:5px;max-width:70%}
+.me{background:var(--accent);align-self:flex-end}
+.bot{background:#1f2a44}
 
-    .hero p {
-      max-width: 600px;
-      color: #cbd5f5;
-    }
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center}
+.modal-box{background:#111;padding:30px;border-radius:12px;text-align:center}
+.pay{margin:10px;padding:10px;border:1px solid #444;cursor:pointer}
 
-    .btn {
-      margin-top: 20px;
-      padding: 12px 24px;
-      background: #38bdf8;
-      border: none;
-      color: black;
-      cursor: pointer;
-      border-radius: 8px;
-      font-weight: bold;
-    }
 
-    section {
-      padding: 60px 40px;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: #1e293b;
-      padding: 20px;
-      border-radius: 12px;
-      transition: transform 0.3s;
-    }
-
-    .card:hover {
-      transform: translateY(-10px);
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      background: #020617;
-      color: #94a3b8;
-    }
-  </style>
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:20}
+.modal.show{display:flex}
+.modal-card{background:var(--card);padding:24px;border-radius:16px;min-width:280px;box-shadow:0 20px 60px rgba(0,0,0,.6);text-align:center}
+.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.pay-btn{padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.15);cursor:pointer}
+.pay-btn:hover{border-color:var(--accent)}
+.processing{margin-top:12px;color:var(--muted)}
+.success{color:#22c55e;font-weight:600;margin-top:10px}
+</style>
 </head>
 <body>
 
 <header>
-  <h2>Ev3.ai</h2>
-  <nav>
-    <a href="#home">Home</a>
-    <a href="#features">Features</a>
-    <a href="#about">About</a>
-    <a href="#shop">Shop</a>
-    <a href="#contact">Contact</a>
-  </nav>
+<h2>Ev3.ai</h2>
+<nav>
+<a onclick="go('home')">Home</a>
+<a onclick="go('about')">About</a>
+<a onclick="go('gallery')">Gallery</a>
+<a onclick="go('tech')">How</a>
+<a onclick="go('box')">Box</a>
+<a onclick="go('shop')">Shop</a>
+</nav>
+<button onclick="theme()">Light or dark?</button>
 </header>
 
-<section class="hero" id="home">
-  <h1>Your Own Smart LEGO Robot</h1>
-  <p>A voice-controlled robot powered by AI. Speak, command, and interact in real time.</p>
-  <button class="btn" onclick="scrollToSection('shop')">Buy Now</button>
+<section id="home" class="page active">
+<div class="hero">
+<h1 id="title"></h1>
+<p>Build and control your own AI robot.</p>
+</div>
+
+<div class="grid">
+<div class="card">Voice control</div>
+<div class="card">Gemini AI</div>
+<div class="card">Camera vision</div>
+<div class="card">Dual EV3</div>
+</div>
+
+<div class="phone">
+<div class="screen">
+<div id="chat" class="chat"></div>
+<input id="msg" placeholder="Say something...">
+<button onclick="send()">Send</button>
+</div>
+</div>
 </section>
 
-<section id="features">
-  <h2>Features</h2>
-  <div class="cards">
-    <div class="card">
-      <h3>Voice Control</h3>
-      <p>Control your robot using natural speech.</p>
-    </div>
-    <div class="card">
-      <h3>AI Powered</h3>
-      <p>Uses Gemini AI to respond intelligently.</p>
-    </div>
-    <div class="card">
-      <h3>Camera Vision</h3>
-      <p>Your robot can see using your phone camera.</p>
-    </div>
-    <div class="card">
-      <h3>Mobile App</h3>
-      <p>Custom app connects seamlessly with your robot.</p>
-    </div>
-  </div>
+<section id="about" class="page">
+<h1>About</h1>
+<p>Why watch the US and China build AI robots when you can build one yourself?</p>
 </section>
 
-<section id="about">
-  <h2>About the Creator</h2>
-  <p>Meet the creator: Hamza Haq, an intelligent and creative developer with huge ideas. </p>
+<section id="gallery" class="page">
+<h1>Gallery</h1>
+<div class="gallery">
+<div class="tile video"><video controls><source src="video.mp4"></video></div>
+<div class="tile"><img src="img1.jpg"></div>
+<div class="tile"><img src="img2.jpg"></div>
+<div class="tile"><img src="img3.jpg"></div>
+<div class="tile"><img src="img4.jpg"></div>
+<div class="tile"><img src="img5.jpg"></div>
+<div class="tile"><img src="img6.jpg"></div>
+</div>
 </section>
 
-<section id="shop">
-  <h2>Shop</h2>
-  <p>Pre-order your companion today.</p>
-  <button class="btn">Shop Now!</button>
+<section id="tech" class="page">
+<h1>How it works</h1>
+<p>Phone → AI → Robot</p>
 </section>
 
-<section id="contact">
-  <h2>Contact</h2>
-  <p>Email: haqmuh@outlook.com</p>
+<section id="box" class="page">
+<h1>What's in the box</h1>
+<div class="grid">
+<div class="card">Robot build kit</div>
+<div class="card">2x Mindstorms EV3 sets</div>
+<div class="card">App key</div>
+<div class="card">User guide</div>
+</div>
 </section>
 
-<footer>
-  <p>© Ev3.ai Project</p>
-</footer>
+<section id="shop" class="page">
+<h1>Shop</h1>
+<div class="grid">
+<div class="card">
+  <h3>Standard</h3>
+  <p>3000 kr</p>
+  <button onclick="openPay('Standard',3000)">Buy</button>
+</div>
+<div class="card">
+  <h3>Pro</h3>
+  <p>4000 kr</p>
+  <button onclick="openPay('Pro',4000)">Buy</button>
+</div>
+</div>
+</section>
+
+<div class="modal" id="modal">
+<div class="modal-box">
+<h2>Select payment</h2>
+<div class="pay" onclick="done()">Vipps</div>
+<div class="pay" onclick="done()">Visa</div>
+<div class="pay" onclick="done()">Mastercard</div>
+<div class="pay" onclick="done()">Klarna</div>
+</div>
+</div>
 
 <script>
-  function scrollToSection(id) {
-    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-  }
+function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));setTimeout(()=>document.getElementById(id).classList.add('active'),100)}
+function theme(){document.body.classList.toggle('light')}
 
-  const cards = document.querySelectorAll('.card');
-  window.addEventListener('scroll', () => {
-    cards.forEach(card => {
-      const rect = card.getBoundingClientRect();
-      if (rect.top < window.innerHeight - 50) {
-        card.style.opacity = 1;
-        card.style.transform = 'translateY(0)';
-      }
-    });
-  });
+let t="Ev3.ai";let i=0;function type(){if(i<t.length){title.innerHTML+=t[i];i++;setTimeout(type,70)}}type();
 
-  cards.forEach(card => {
-    card.style.opacity = 0;
-    card.style.transform = 'translateY(50px)';
-    card.style.transition = 'all 0.6s ease';
-  });
+const responses=["Moving","Scanning","Hello","Done"];
+function send(){let v=msg.value;if(!v)return;add(v,'me');msg.value='';setTimeout(()=>add(responses[Math.random()*responses.length|0],'bot'),600)}
+function add(t,c){let d=document.createElement('div');d.className='bubble '+c;d.innerText=t;chat.appendChild(d)}
+
+function pay(){modal.style.display='flex'}
+function done(){alert('Order confirmed. Arrives in 2 days.');modal.style.display='none'}
+
+const c=document.createElement('canvas');document.body.appendChild(c);c.style.position='fixed';c.style.zIndex='-1';const ctx=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;let p=[];for(let i=0;i<100;i++){p.push({x:Math.random()*c.width,y:Math.random()*c.height,vx:Math.random(),vy:Math.random()})}
+function anim(){ctx.clearRect(0,0,c.width,c.height);p.forEach(o=>{o.x+=o.vx;o.y+=o.vy;if(o.x<0||o.x>c.width)o.vx*=-1;if(o.y<0||o.y>c.height)o.vy*=-1;ctx.fillRect(o.x,o.y,2,2)});requestAnimationFrame(anim)}anim();
+</script>
+
+
+<div id="payModal" class="modal">
+  <div class="modal-card">
+    <h3 id="planTitle">Checkout</h3>
+    <div class="pay-grid">
+      <div class="pay-btn" onclick="completePay('Vipps')">Vipps</div>
+      <div class="pay-btn" onclick="completePay('Visa')">Visa</div>
+      <div class="pay-btn" onclick="completePay('Mastercard')">Mastercard</div>
+      <div class="pay-btn" onclick="completePay('Klarna')">Klarna</div>
+    </div>
+    <div id="status" class="processing"></div>
+    <div style="margin-top:10px"><button onclick="closePay()">Close</button></div>
+  </div>
+</div>
+
+<script>
+
+let currentPlan = null;
+function openPay(name, price){
+  currentPlan = {name, price};
+  document.getElementById('planTitle').innerText = `${name} — ${price} kr`;
+  document.getElementById('status').innerText = '';
+  document.getElementById('payModal').classList.add('show');
+}
+function closePay(){ document.getElementById('payModal').classList.remove('show'); }
+function completePay(method){
+  const s = document.getElementById('status');
+  s.className = 'processing';
+  s.innerText = `Processing with ${method}...`;
+  setTimeout(()=>{
+    s.className = 'success';
+    s.innerText = 'Order confirmed! Your package is on the way and will arrive in 2 days.';
+  }, 900);
+}
+
+window.addEventListener('click', (e)=>{
+  const m = document.getElementById('payModal');
+  if(e.target === m) closePay();
+});
 </script>
 
 </body>
